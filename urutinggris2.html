@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Urutkan Kata Bahasa Inggris</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: #065f46; /* hijau tua */
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: #a7f3d0; /* hijau muda */
+      padding: 28px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.08);
+      width: min(700px, 92%);
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .words {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .word {
+      background: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      cursor: grab;
+      user-select: none;
+    }
+    textarea {
+      width: 100%;
+      height: 80px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      padding: 10px;
+      font-size: 16px;
+      background: white;
+      margin-bottom: 20px;
+      resize: none;
+    }
+    button {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: none;
+      background: #0ea5a9;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+    .feedback {
+      margin-top: 12px;
+      font-weight: 600;
+    }
+    .correct { color: #047857; }
+    .wrong { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Urutkan Kata Bahasa Inggris</h1>
+    <p>Silakan urutkan kata-kata berikut menjadi kalimat yang benar dengan cara drag dan drop ke kotak di bawah.</p>
+
+    <div class="words" id="wordContainer"></div>
+
+    <textarea id="answer" placeholder="Seret kata ke sini..."></textarea>
+
+    <div>
+      <button id="check">Hasil</button>
+      <button id="reset">Reset</button>
+    </div>
+
+    <div id="feedback" class="feedback"></div>
+  </main>
+
+  <script>
+    const words = ['I', 'am', 'going', 'to', 'the', 'market'];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    const container = document.getElementById('wordContainer');
+    const answer = document.getElementById('answer');
+    const feedback = document.getElementById('feedback');
+
+    function renderWords() {
+      container.innerHTML = '';
+      shuffle([...words]).forEach(word => {
+        const el = document.createElement('div');
+        el.textContent = word;
+        el.className = 'word';
+        el.draggable = true;
+
+        el.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text', word);
+          e.target.style.opacity = '0.5';
+        });
+        el.addEventListener('dragend', e => {
+          e.target.style.opacity = '1';
+        });
+
+        container.appendChild(el);
+      });
+    }
+
+    answer.addEventListener('dragover', e => {
+      e.preventDefault();
+    });
+
+    answer.addEventListener('drop', e => {
+      e.preventDefault();
+      const word = e.dataTransfer.getData('text');
+      if (word) {
+        answer.value += (answer.value ? ' ' : '') + word;
+        const el = [...container.children].find(c => c.textContent === word);
+        if (el) el.remove();
+      }
+    });
+
+    document.getElementById('check').addEventListener('click', () => {
+      if (answer.value.trim().toLowerCase() === 'i am going to the market') {
+        feedback.textContent = 'Hebat! Jawaban Anda benar.';
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = 'Maaf, jawaban Anda salah. Ulangi lagi.';
+        feedback.className = 'feedback wrong';
+      }
+    });
+
+    document.getElementById('reset').addEventListener('click', () => {
+      answer.value = '';
+      feedback.textContent = '';
+      renderWords();
+    });
+
+    renderWords();
+  </script>
+</body>
+</html>
